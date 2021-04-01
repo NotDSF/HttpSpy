@@ -28,12 +28,12 @@ local function formatIndex(idx, scope)
   local indexType = type(idx);
   local finishedFormat = "";
   if indexType == "string" then
-    finishedFormat = finishedFormat .. ("\"%s\""):format(idx);
+    finishedFormat ..= ("\"%s\""):format(idx);  -- PLEASE IGNORE THE SYNTAX ERROR! (Compound operators are supported by SynX.)
   elseif indexType == "number" then
-    finishedFormat = finishedFormat .. idx;
+    finishedFormat ..=  idx;
   elseif indexType == "table" then
-    scope++; -- PLEASE IGNORE THE SYNTAX ERROR! (Compound operators are supported by SynX.)
-    finishedFormat = finishedFormat .. Serialize(idx, scope);
+    scope++;
+    finishedFormat ..= Serialize(idx, scope);
   end;
   return ("[%s]"):format(finishedFormat);
 end;
