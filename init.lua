@@ -41,7 +41,7 @@ setreadonly(syn or http, false);
 (syn or http).request = function(request) 
   local ResponseData = backupSYN(request); -- Emulate an actual syn.request call
 
-  rconsolei(format("%s.request(%s)\n\nResponse Data: %s\n", syn and "syn" or "http", Serialize(request), Serialize(ResponseData)));
+  rconsolei(format("%s.request(%s)\n\nResponse Data: %s\n\n", syn and "syn" or "http", Serialize(request), Serialize(ResponseData)));
 
   return ResponseData;
 end;
