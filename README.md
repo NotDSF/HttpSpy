@@ -1,17 +1,29 @@
 # HttpSpy
-A tool to easily reconstruct HTTP requests sent by the client.
+A tool to easily reconstruct HTTP(s) requests sent by the client. \w Syntax highlighting support
 
 ## Usage
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/init.lua"))();
 ```
 
-## Why should you use this?
-Unlike other HTTP spies, mine serializes the request with the information sent.
+## Features
+- HTTP(s) Request Reconstructing
+- Syntax Highlighting
+- Lightweight
+- Supports Synapse X & Script-Ware
+- Auto JSON Decoding
+- Easy to use
 
-## Should you use this to penetration test?
-Simple answer, No. There are multiple detection methods for this, and I made this for private use.
+## Tutorial
+1. Execute HTTP(s) spy.
+2. Execute target script.
 
-## Output Example
+## Examples
+```lua
+syn.request({
+    ["Url"] = "https://httpbin.org/get"
+})
+```
 
-![](https://i.imgur.com/Du0q6vp.png)
+## Preview
+![](https://cdn.avonis.app/2cd7b683.png)
