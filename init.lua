@@ -2,7 +2,7 @@ assert(hookmetamethod, "Unsupported exploit");
 assert(syn or http, "Unsupported exploit");
 
 if getgenv().HttpSpy then
-  return warn("HTTP Spy already loaded. Run getgenv().HttpSpy:Destroy() to destroy the thread.");
+  return warn("HTTP(s) Spy already loaded. Run getgenv().HttpSpy:Destroy() to destroy the thread.");
 end;
 
 local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
@@ -73,4 +73,4 @@ end;
 
 getgenv().HttpSpy = HttpSpy;
 
-warn("HTTP Spy; Created by dsf");
+warn("HTTP(s) Spy; Created by dsf");
