@@ -5,14 +5,16 @@ if getgenv().HttpSpy then
   return warn("HTTP Spy already loaded. Run getgenv().HttpSpy:Destroy() to destroy the thread.");
 end;
 
-local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer.lua"))();
+local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
 
 local __namecall;
 local spyEnabled = true;
+local gsub       = string.gsub;
 local format     = string.format;
 local getmethod  = getnamecallmethod;
 local rconsolei  = rconsoleprint;
-local backupSYN  = (syn or http).request;
+local httplib    = syn or http;
+local backupSYN  = httplib.request;
 local RBXMethods = {
   ["HttpGet"] = true;
   ["HttpGetAsync"] = true;
@@ -36,23 +38,37 @@ __namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
   return __namecall(self, ...);
 end));
 
-setreadonly(syn or http, false);
+setreadonly(httplib, false);
 
-(syn or http).request = function(request) 
+httplib.request = function(request) 
   local ResponseData = backupSYN(request); -- Emulate an actual syn.request call
 
-  rconsolei(format("%s.request(%s)\n\nResponse Data: %s\n\n", syn and "syn" or "http", Serialize(request), Serialize(ResponseData)));
+  if ResponseData.Headers["Content-Type"] == "application/json" then
+    local body = ResponseData.Body;
+    local ok, res = pcall(game.HttpService.JSONDecode, game.HttpService, body);
+
+    if ok then
+      ResponseData.Body = res;
+      ResponseData.RawBody = gsub(body, "%s", ""); 
+    end;
+  end;
+
+  rconsolei(format("%s.request(%s)\n\nResponse Data: %s\n", syn and "syn" or "http", Serialize(request), Serialize(ResponseData)));
 
   return ResponseData;
 end;
 
-setreadonly(syn or http, true);
+setreadonly(httplib, true);
 
 local HttpSpy = {};
 function HttpSpy:Destroy()
+  setreadonly(httplib, false);
+
   getgenv().HttpSpy = nil;
-  (syn or http).request = backupSYN;
+  httplib.request = backupSYN;
   spyEnabled = false;
+
+  setreadonly(httplib, true);
 end;
 
 getgenv().HttpSpy = HttpSpy;
