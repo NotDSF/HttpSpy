@@ -12,6 +12,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 - Lightweight
 - Supports Synapse X & Script-Ware
 - Auto JSON Decoding
+- WebSocket support
 - Easy to use
 
 ## Tutorial
