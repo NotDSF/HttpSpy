@@ -20,7 +20,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 2. Execute target script.
 
 ## Alert
-This is really easy to detect.
+This is **really easy** to detect.
 
 ## Examples
 ```lua
