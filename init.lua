@@ -9,7 +9,7 @@ local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/Not
 
 local __namecall;
 local spyEnabled  = true;
-local gsub        = string.gsub;
+--local gsub        = string.gsub;
 local format      = string.format;
 local getmethod   = getnamecallmethod;
 local externprint = rconsoleprint;
@@ -42,18 +42,23 @@ setreadonly(httplib, false);
 
 httplib.request = function(request) 
   local ResponseData = backupSYN(request); -- Emulate an actual syn.request call
+  local BackupData = {};
 
-  if ResponseData.Headers["Content-Type"] == "application/json" then
-    local body = ResponseData.Body;
+  for i,v in pairs(ResponseData) do
+    BackupData[i] = v;
+  end;
+
+  if BackupData.Headers["Content-Type"] == "application/json" then
+    local body = BackupData.Body;
     local ok, res = pcall(game.HttpService.JSONDecode, game.HttpService, body);
 
     if ok then
-      ResponseData.Body = res;
-      ResponseData.RawBody = gsub(body, "%s", ""); 
+      BackupData.Body = res;
+      --BackupData.RawBody = gsub(body, "%s", ""); 
     end;
   end;
 
-  externprint(format("%s.request(%s)\n\nResponse Data: %s\n", syn and "syn" or "http", Serialize(request), Serialize(ResponseData)));
+  externprint(format("%s.request(%s)\n\nResponse Data: %s\n", syn and "syn" or "http", Serialize(request), Serialize(BackupData)));
 
   return ResponseData;
 end;
