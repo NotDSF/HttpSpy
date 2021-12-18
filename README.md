@@ -1,5 +1,5 @@
 # HttpSpy
-A tool to easily reconstruct HTTP(s) requests sent by the client. \w Syntax highlighting support
+A powerful and highly efficient network debugging tool for Roblox (and exploits)
 
 ## Usage
 ```lua
@@ -15,19 +15,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 - WebSocket support
 - Easy to use
 
+## Preview
+![](https://cdn.avonis.app/15eebac9.png)
+
 ## Tutorial
-1. Execute HTTP(s) spy.
+1. Execute HTTP spy.
 2. Execute target script.
 
 ## Alert
 This is **really easy** to detect.
-
-## Examples
-```lua
-syn.request({
-    ["Url"] = "https://httpbin.org/get"
-})
-```
-
-## Preview
-![](https://cdn.avonis.app/2cd7b683.png)
