@@ -7,12 +7,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 ```
 
 ## Features
-- HTTP(s) Request Reconstructing
+- Request Reconstructing
 - Syntax Highlighting
-- Lightweight
-- Supports Synapse X & Script-Ware
-- Auto JSON Decoding
 - WebSocket support
+- Lightweight
+- Auto JSON Decoding
 - Easy to use
 
 ## Preview
