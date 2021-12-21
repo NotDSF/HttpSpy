@@ -19,3 +19,5 @@ syn.request({
 WILL PRINT NOTHING BECAUSE `backup(...)` SOMEHOW IS LIKE RETURN 
 
 SO FOR ME TO BE ABLE TO GET THE RESPONSE I NEED TO COMPLETELY REPLACE THE CLOSURE
+
+(sorry for the caps im just malding so hard rn)
