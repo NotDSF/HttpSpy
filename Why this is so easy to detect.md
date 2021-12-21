@@ -10,7 +10,7 @@ backup = hookfunction(syn.request, newcclosure(function(...)
     return res;
 end));
 ```
-
+THEN EXECUTE
 ```lua
 syn.request({
     Url = "https://httpbin.org/get"
