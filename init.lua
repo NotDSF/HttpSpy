@@ -38,6 +38,14 @@ __namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
   return __namecall(self, ...);
 end));
 
+for i in pairs(RBXMethods) do
+  local m, b = game[i];
+  b = hookfunction(m, newcclosure(function(self, ...) 
+    externprint(format("game.%s(game, %s)\n", i, Serialize.serializeArgs({...})));
+    return b(self, ...);
+  end));
+end;
+
 setreadonly(httplib, false);
 
 httplib.request = function(request) 
