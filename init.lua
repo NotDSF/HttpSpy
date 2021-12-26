@@ -4,7 +4,7 @@
 
 assert(syn, "Unsupported exploit");
 
-local Options = {...};
+local Options = ({...})[1];
 local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
 local pconsole = rconsoleprint;
 local format = string.format;
