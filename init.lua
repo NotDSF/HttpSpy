@@ -1,133 +1,109 @@
-assert(hookmetamethod, "Unsupported exploit");
-assert(syn or http, "Unsupported exploit");
+--[[
+    HttpSpy v1.0.2
+]]
 
-if getgenv().HttpSpy then
-  return warn("HTTP(s) Spy already loaded. Run getgenv().HttpSpy:Destroy() to destroy the thread.");
-end;
+assert(syn, "Unsupported exploit");
 
+local Options = {...};
 local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
-
-local __namecall;
-local spyEnabled  = true;
---local gsub        = string.gsub;
-local format      = string.format;
-local getmethod   = getnamecallmethod;
-local externprint = rconsoleprint or print;
-local httplib     = syn or http;
-local backupSYN   = httplib.request;
-local RBXMethods  = {
-  ["HttpGet"] = true;
-  ["HttpGetAsync"] = true;
-  ["GetObjects"] = true;
-  ["HttpPost"] = true;
-  ["HttpPostAsync"] = true;
+local pconsole = rconsoleprint;
+local format = string.format;
+local methods = {
+    HttpGet = true,
+    HttpGetAsync = true,
+    GetObjects = true,
+    HttpPost = true,
+    HttpPostAsync = true
 }
 
--- What the fuck script ware
-if consolecreate then
-  consolecreate();
+local function printf(...) 
+    return pconsole(format(...));
 end;
 
-__namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...) 
-  local method = getmethod();
+local __namecall, __request;
+__namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+    local method = getnamecallmethod();
 
-  if RBXMethods[method] and spyEnabled then
-    externprint(format("game:%s(%s)\n", method, Serialize.serializeArgs({...})))
-  end;
+    if methods[method] then
+        printf("game:%s(%s)\n", method, Serialize.serializeArgs(...));
+    end;
 
-  return __namecall(self, ...);
+    return __namecall(self, ...);
 end));
 
-for i in pairs(RBXMethods) do
-  local m, b = game[i];
-  b = hookfunction(m, newcclosure(function(self, ...) 
-    externprint(format("game.%s(game, %s)\n", i, Serialize.serializeArgs({...})));
-    return b(self, ...);
-  end));
-end;
+__request = hookfunction(syn.request, newcclosure(function(req) 
+    local BE = Instance.new("BindableEvent");
+    coroutine.wrap(function() 
+        local ResponseData = __request(req);
+        local BackupData = {};
 
-setreadonly(httplib, false);
+        for i,v in pairs(ResponseData) do
+            BackupData[i] = v;
+        end;
 
-httplib.request = function(request) 
-  local ResponseData = backupSYN(request); -- Emulate an actual syn.request call
-  local BackupData = {};
+        if BackupData.Headers["Content-Type"] == "application/json" then
+            local body = BackupData.Body;
+            local ok, res = pcall(game.HttpService.JSONDecode, game.HttpService, body);
+            
+            if ok then
+                BackupData.Body = res;
+            end;
+        end;
 
-  for i,v in pairs(ResponseData) do
-    BackupData[i] = v;
-  end;
+        printf("syn.request(%s)\n\nResponse Data: %s\n", Serialize(req), Serialize(BackupData));
+        BE.Fire(BE, ResponseData);
+    end)();
+    return BE.Event:Wait();
+end));
 
-  if BackupData.Headers["Content-Type"] == "application/json" then
-    local body = BackupData.Body;
-    local ok, res = pcall(game.HttpService.JSONDecode, game.HttpService, body);
+if Options.Websocket and messagebox("The websocket spy can be easily detected, are you sure you want to use it?", "Alert", 1) == 1 then
+    local id = 1;
+    __websocket = hookfunction(syn.websocket.connect, function(url) 
+        local BE = Instance.new("BindableEvent");
+        coroutine.wrap(function() 
+            local WebsocketId = "WS_" .. id;
+            local WebSocket = __websocket(url);
+            local mt = getrawmetatable(WebSocket);
+            local __send, __close = WebSocket.Send, WebSocket.Close;
+    
+            printf("local %s = syn.websocket.connect(%s)\n", WebsocketId, Serialize.serializeArgs(url));
+            
+            mt.__newindex = function(self, ...) 
+                return rawset(self, ...);
+            end;
+    
+            WebSocket.Send = function(self, message) 
+                __send(self, message);
+                printf("%s:Send(%s)\n", WebsocketId, Serialize.serializeArgs(message));
+            end;
+    
+            WebSocket.Close = function(self) 
+                __close(self);
+                printf("%s:Close()\n", WebsocketId);
+            end;
+    
+            WebSocket.OnMessage:Connect(function(message) 
+                printf("%s recieved message: %s\n", WebsocketId, Serialize.serializeArgs(message));
+            end);
+    
+            WebSocket.OnClose:Connect(function()
+                printf("%s closed!\n", WebsocketId);
+            end);
 
-    if ok then
-      BackupData.Body = res;
-      --BackupData.RawBody = gsub(body, "%s", ""); 
-    end;
-  end;
-
-  externprint(format("%s.request(%s)\n\nResponse Data: %s\n", syn and "syn" or "http", Serialize(request), Serialize(BackupData)));
-
-  return ResponseData;
-end;
-
-local WebsocketLib = syn and syn.websocket or WebSocket;
-local BackupWS = WebsocketLib and WebsocketLib.connect;
-
-if WebsocketLib then
-  WebsocketLib.connect = function(...) 
-    local WebSocket = BackupWS(...);
-    local mt = getrawmetatable(WebSocket);
-
-    externprint(format("%s.connect(%s)\n", syn and "syn.websocket" or "WebSocket", Serialize.serializeArgs({...})));
-    setreadonly(WebSocket, false);
-
-    local __send = WebSocket.Send;
-    local __close = WebSocket.Close;
-
-    mt.__newindex = function(self, idx, val) 
-      return rawset(self, idx, val);
-    end;
-
-    WebSocket.Send = function(self, message)
-      __send(self, message);
-      externprint(format("WebSocket:Send(%s)\n", Serialize.serializeArgs({message}))); 
-    end;
-
-    WebSocket.Close = function(self) 
-      __close(self);
-      externprint("WebSocket:Close()\n");
-    end;
-
-    WebSocket.OnMessage:Connect(function(message)
-      externprint(format("WebSocket Message Received: %s\n", Serialize.serializeArgs({message})));
+            BE.Fire(BE, WebSocket);
+        end)();
+        id++;
+        return BE.Event:Wait();
     end);
-
-    WebSocket.OnClose:Connect(function() 
-      externprint("WebSocket Closed");
-    end);
-
-    return WebSocket;
-  end;
 end;
 
-setreadonly(httplib, true);
-
-local HttpSpy = {};
-function HttpSpy:Destroy()
-  setreadonly(httplib, false);
-
-  getgenv().HttpSpy = nil;
-  httplib.request = backupSYN;
-  spyEnabled = false;
-
-  if WebsocketLib then
-    WebsocketLib.connect = BackupWS;
-  end;
-
-  setreadonly(httplib, true);
+for method in pairs(methods) do
+    local b;
+    b = hookfunction(game[method], newcclosure(function(self, ...) 
+        printf("game.%s(game, %s)\n", method, Serialize.serializeArgs(...));
+        return b(self, ...);
+    end));
 end;
 
-getgenv().HttpSpy = HttpSpy;
-
-warn("HTTP(s) Spy; Created by dsf");
+local RecentCommit = game.HttpService:JSONDecode(game:HttpGet("https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
+warn("HttpSpy v1.0.2\nCreated by d s f @ v3rmillion.net aka dsf#2711\nRecent Update: " .. RecentCommit);
