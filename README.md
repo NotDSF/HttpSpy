@@ -20,6 +20,3 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 ## Tutorial
 1. Execute HTTP spy.
 2. Execute target script.
-
-## Alert
-This is **really easy** to detect.
