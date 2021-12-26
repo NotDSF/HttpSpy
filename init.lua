@@ -4,7 +4,6 @@
 
 assert(syn, "Unsupported exploit");
 
-local Options = ({...})[1];
 local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
 local pconsole = rconsoleprint;
 local format = string.format;
@@ -56,7 +55,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
     return BE.Event:Wait();
 end));
 
-if Options.Websocket and messagebox("The websocket spy can be easily detected, are you sure you want to use it?", "Alert", 1) == 1 then
+if messagebox("The websocket spy can be easily detected, are you sure you want to use it?", "Alert", 1) == 1 then
     local id = 1;
     __websocket = hookfunction(syn.websocket.connect, function(url) 
         local BE = Instance.new("BindableEvent");
