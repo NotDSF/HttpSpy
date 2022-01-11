@@ -1,12 +1,20 @@
 --[[
-    HttpSpy v1.0.2
+    HttpSpy v1.0.3
 ]]
 
 assert(syn, "Unsupported exploit");
 
-local Serialize = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua"))();
+local logname = string.format("HttpSpy/logs/%s-log.txt", os.date("%d_%m_%y")); -- americans malding rn
+if not isfolder("HttpSpy") then makefolder("HttpSpy") end;
+if not isfolder("HttpSpy/logs") then makefolder("HttpSpy/logs") end;
+if not isfile("HttpSpy/serializer.lua") then writefile("HttpSpy/serializer.lua", game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua")) end;
+if not isfile(logname) then writefile(logname, "") end;
+
+local Serialize = loadstring(readfile("HttpSpy/serializer.lua"))()
 local pconsole = rconsoleprint;
 local format = string.format;
+local gsub = string.gsub;
+local append = appendfile;
 local methods = {
     HttpGet = true,
     HttpGetAsync = true,
@@ -16,6 +24,7 @@ local methods = {
 }
 
 local function printf(...) 
+    append(logname, gsub(format(...), "%\27%[%d+m", ""));
     return pconsole(format(...));
 end;
 
@@ -96,6 +105,8 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
     end);
 end;
 
+local RecentCommit = game.HttpService:JSONDecode(game.HttpGet(game, "https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
+
 for method in pairs(methods) do
     local b;
     b = hookfunction(game[method], newcclosure(function(self, ...) 
@@ -104,5 +115,4 @@ for method in pairs(methods) do
     end));
 end;
 
-local RecentCommit = game.HttpService:JSONDecode(game:HttpGet("https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
-warn("HttpSpy v1.0.2\nCreated by d s f @ v3rmillion.net aka dsf#2711\nRecent Update: " .. RecentCommit);
+pconsole(format("HttpSpy v1.0.3\nCreated by dsf#2711\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\n", RecentCommit, logname))
