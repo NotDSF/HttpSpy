@@ -15,7 +15,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 - Easy to use
 
 ## Preview
-![](https://cdn.avonis.app/15eebac9.png)
+![](https://storage.googleapis.com/cdn.avonis.app/15eebac9.png)
 
 ## Tutorial
 1. Execute HTTP spy.
