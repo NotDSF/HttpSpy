@@ -1,16 +1,19 @@
 --[[
-    HttpSpy v1.0.3
+    HttpSpy v1.0.4
 ]]
 
 assert(syn, "Unsupported exploit");
 
+local version = "v1.0.4";
 local logname = string.format("HttpSpy/logs/%s-log.txt", os.date("%d_%m_%y")); -- americans malding rn
+local serializerpath = string.format("HttpSpy/serializer-%s.lua", version);
+
 if not isfolder("HttpSpy") then makefolder("HttpSpy") end;
 if not isfolder("HttpSpy/logs") then makefolder("HttpSpy/logs") end;
-if not isfile("HttpSpy/serializer.lua") then writefile("HttpSpy/serializer.lua", game:HttpGet("https://raw.githubusercontent.com/NotDSF/Lua-Serializer/main/Serializer%20Highlighting.lua")) end;
 if not isfile(logname) then writefile(logname, "") end;
+if not isfile(serializerpath) then writefile(serializerpath, game:HttpGet("https://raw.githubusercontent.com/NotDSF/leopard/main/rbx/leopard-syn.lua")); end;
 
-local Serialize = loadstring(readfile("HttpSpy/serializer.lua"))()
+local Serializer = loadstring(readfile(serializerpath))()
 local pconsole = rconsoleprint;
 local format = string.format;
 local gsub = string.gsub;
@@ -33,7 +36,7 @@ __namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local method = getnamecallmethod();
 
     if methods[method] then
-        printf("game:%s(%s)\n", method, Serialize.serializeArgs(...));
+        printf("game:%s(%s)\n", method, Serializer.FormatArguments(...));
     end;
 
     return __namecall(self, ...);
@@ -58,7 +61,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
             end;
         end;
 
-        printf("syn.request(%s)\n\nResponse Data: %s\n", Serialize(req), Serialize(BackupData));
+        printf("syn.request(%s)\n\nResponse Data: %s\n", Serializer.Serialize(req), Serializer.Serialize(BackupData));
         BE.Fire(BE, ResponseData);
     end)();
     return BE.Event:Wait();
@@ -74,7 +77,7 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
             local mt = getrawmetatable(WebSocket);
             local __send, __close = WebSocket.Send, WebSocket.Close;
     
-            printf("local %s = syn.websocket.connect(%s)\n", WebsocketId, Serialize.serializeArgs(url));
+            printf("local %s = syn.websocket.connect(%s)\n", WebsocketId, Serializer.FormatArguments(url));
             
             mt.__newindex = function(self, ...) 
                 return rawset(self, ...);
@@ -82,7 +85,7 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
     
             WebSocket.Send = function(self, message) 
                 __send(self, message);
-                printf("%s:Send(%s)\n", WebsocketId, Serialize.serializeArgs(message));
+                printf("%s:Send(%s)\n", WebsocketId, Serializer.FormatArguments(message));
             end;
     
             WebSocket.Close = function(self) 
@@ -91,7 +94,7 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
             end;
     
             WebSocket.OnMessage:Connect(function(message) 
-                printf("%s recieved message: %s\n", WebsocketId, Serialize.serializeArgs(message));
+                printf("%s recieved message: %s\n", WebsocketId, Serializer.FormatArguments(message));
             end);
     
             WebSocket.OnClose:Connect(function()
@@ -100,7 +103,7 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
 
             BE.Fire(BE, WebSocket);
         end)();
-        id++;
+        id = id + 1;
         return BE.Event:Wait();
     end);
 end;
@@ -110,9 +113,9 @@ local RecentCommit = game.HttpService:JSONDecode(game.HttpGet(game, "https://api
 for method in pairs(methods) do
     local b;
     b = hookfunction(game[method], newcclosure(function(self, ...) 
-        printf("game.%s(game, %s)\n", method, Serialize.serializeArgs(...));
+        printf("game.%s(game, %s)\n", method, Serializer.FormatArguments(...));
         return b(self, ...);
     end));
 end;
 
-pconsole(format("HttpSpy v1.0.3\nCreated by dsf#2711\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\n", RecentCommit, logname))
+pconsole(format("HttpSpy %s\nCreated by dsf#2711\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\n\n", version, RecentCommit, logname))
