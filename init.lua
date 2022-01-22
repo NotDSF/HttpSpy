@@ -1,19 +1,15 @@
 --[[
-    HttpSpy v1.0.4
+    HttpSpy v1.0.5
 ]]
 
 assert(syn, "Unsupported exploit");
 
-local version = "v1.0.4";
-local logname = string.format("HttpSpy/logs/%s-log.txt", os.date("%d_%m_%y")); -- americans malding rn
-local serializerpath = string.format("HttpSpy/serializer-%s.lua", version);
+local version = "v1.0.5";
+local logname = string.format("%s-log.txt", syn.crypt.base64.encode(syn.crypt.random(5)));
 
-if not isfolder("HttpSpy") then makefolder("HttpSpy") end;
-if not isfolder("HttpSpy/logs") then makefolder("HttpSpy/logs") end;
-if not isfile(logname) then writefile(logname, "") end;
-if not isfile(serializerpath) then writefile(serializerpath, game:HttpGet("https://raw.githubusercontent.com/NotDSF/leopard/main/rbx/leopard-syn.lua")); end;
+if not isfile(logname) then writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) end;
 
-local Serializer = loadstring(readfile(serializerpath))()
+local Serializer = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/leopard/main/rbx/leopard-syn.lua"))()
 local pconsole = rconsoleprint;
 local format = string.format;
 local gsub = string.gsub;
@@ -25,6 +21,8 @@ local methods = {
     HttpPost = true,
     HttpPostAsync = true
 }
+
+Serializer.UpdateConfig({ highlighting = true });
 
 local function printf(...) 
     append(logname, gsub(format(...), "%\27%[%d+m", ""));
@@ -118,4 +116,4 @@ for method in pairs(methods) do
     end));
 end;
 
-pconsole(format("HttpSpy %s\nCreated by dsf#2711\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\n\n", version, RecentCommit, logname))
+pconsole(format("HttpSpy %s\nCreated by https://github.com/NotDSF\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\n\n", version, RecentCommit, logname))
