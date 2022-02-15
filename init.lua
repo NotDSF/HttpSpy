@@ -1,11 +1,11 @@
 --[[
-    HttpSpy v1.0.5
+    HttpSpy v1.0.6
 ]]
 
 assert(syn, "Unsupported exploit");
 
-local version = "v1.0.5";
-local logname = string.format("%s-log.txt", syn.crypt.base64.encode(syn.crypt.random(5)));
+local version = "v1.0.6";
+local logname = string.format("%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""));
 
 if not isfile(logname) then writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) end;
 
@@ -13,6 +13,7 @@ local Serializer = loadstring(game:HttpGet("https://raw.githubusercontent.com/No
 local pconsole = rconsoleprint;
 local format = string.format;
 local gsub = string.gsub;
+local match = string.match;
 local append = appendfile;
 local methods = {
     HttpGet = true,
@@ -50,7 +51,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
             BackupData[i] = v;
         end;
 
-        if BackupData.Headers["Content-Type"] == "application/json" then
+        if match(BackupData.Headers["Content-Type"], "application/json") then
             local body = BackupData.Body;
             local ok, res = pcall(game.HttpService.JSONDecode, game.HttpService, body);
             
