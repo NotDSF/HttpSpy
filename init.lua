@@ -1,10 +1,11 @@
 --[[
-    HttpSpy v1.0.6
+    HttpSpy v1.0.7
 ]]
 
 assert(syn, "Unsupported exploit");
 
-local version = "v1.0.6";
+local options = ({...})[1] or {};
+local version = "v1.0.7";
 local logname = string.format("%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""));
 
 if not isfile(logname) then writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) end;
@@ -45,7 +46,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
     local BE = Instance.new("BindableEvent");
     coroutine.wrap(function() 
         local ResponseData = __request(req);
-        local BackupData = {};
+        local BackupData, IsJSON = {};
 
         for i,v in pairs(ResponseData) do
             BackupData[i] = v;
@@ -58,15 +59,23 @@ __request = hookfunction(syn.request, newcclosure(function(req)
             if ok then
                 BackupData.Body = res;
             end;
+
+            IsJSON = true;
         end;
 
         printf("syn.request(%s)\n\nResponse Data: %s\n", Serializer.Serialize(req), Serializer.Serialize(BackupData));
+
+        if IsJSON then
+            append(logname, format("\nRaw Body: %s\n", ResponseData.Body));
+        end;
+
         BE.Fire(BE, ResponseData);
     end)();
     return BE.Event:Wait();
 end));
 
-if messagebox("The websocket spy can be easily detected, are you sure you want to use it?", "Alert", 1) == 1 then
+-- This can be easily detected!!!
+if options.WebsocketSpy then
     local id = 1;
     __websocket = hookfunction(syn.websocket.connect, function(url) 
         local BE = Instance.new("BindableEvent");
@@ -75,27 +84,27 @@ if messagebox("The websocket spy can be easily detected, are you sure you want t
             local WebSocket = __websocket(url);
             local mt = getrawmetatable(WebSocket);
             local __send, __close = WebSocket.Send, WebSocket.Close;
-    
+
             printf("local %s = syn.websocket.connect(%s)\n", WebsocketId, Serializer.FormatArguments(url));
             
             mt.__newindex = function(self, ...) 
                 return rawset(self, ...);
             end;
-    
+
             WebSocket.Send = function(self, message) 
                 __send(self, message);
                 printf("%s:Send(%s)\n", WebsocketId, Serializer.FormatArguments(message));
             end;
-    
+
             WebSocket.Close = function(self) 
                 __close(self);
                 printf("%s:Close()\n", WebsocketId);
             end;
-    
+
             WebSocket.OnMessage:Connect(function(message) 
                 printf("%s recieved message: %s\n", WebsocketId, Serializer.FormatArguments(message));
             end);
-    
+
             WebSocket.OnClose:Connect(function()
                 printf("%s closed!\n", WebsocketId);
             end);
