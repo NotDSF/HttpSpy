@@ -15,6 +15,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 - Lightweight
 - Auto JSON Decoding
 - Easy to use
+- CLI Commands
 
 ## Preview
 ![](https://i.imgur.com/hnnMiLA.png)
