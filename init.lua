@@ -1,5 +1,6 @@
 --[[
     HttpSpy v1.0.8
+    federal uwu
 ]]
 
 assert(syn, "Unsupported exploit");
