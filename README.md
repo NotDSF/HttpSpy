@@ -5,7 +5,9 @@ A powerful and highly efficient network debugging tool for Roblox (and exploits)
 > Be sure to execute the HttpSpy before the target script!
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/init.lua"))({
-  WebsocketSpy = false -- Be careful if you decide to use this, it is disabled by default for a reason and can be detected easily!
+    AutoDecode = true, -- Automatically decodes JSON,
+    Highlighting = true, -- Highlights the output
+    SaveLogs = true -- Save logs to a text file
 });
 ```
 
