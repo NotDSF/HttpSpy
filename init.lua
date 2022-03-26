@@ -4,7 +4,7 @@
 
 assert(syn, "Unsupported exploit");
 
-local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true };
+local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true };
 local version = "v1.0.9";
 local logname = string.format("%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""));
 
@@ -79,7 +79,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
 
     local RequestData = DeepClone(req);
     if not enabled then
-        return __request(RequestData);
+        return __request(req);
     end;
 
     local t = crunning();
