@@ -100,7 +100,7 @@ __request = hookfunction(syn.request, newcclosure(function(req)
             BackupData[i] = v;
         end;
 
-        if match(BackupData.Headers["Content-Type"], "application/json") and options.AutoDecode then
+        if BackupData.Headers["Content-Type"] and match(BackupData.Headers["Content-Type"], "application/json") and options.AutoDecode then
             local body = BackupData.Body;
             local ok, res = Pcall(game.HttpService.JSONDecode, game.HttpService, body);
             
