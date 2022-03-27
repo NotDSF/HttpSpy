@@ -11,7 +11,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
     CLICommands = true -- Allows you to input commands into the console
 });
 ```
-> :warning: This can be **detected** by competent developers so use it carefully!
 
 ## Features
 - Request Reconstructing
