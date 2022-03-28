@@ -1,14 +1,15 @@
 --[[
-    HttpSpy v1.0.9
+    HttpSpy v1.1.0
 ]]
 
 assert(syn, "Unsupported exploit");
 
 local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true };
-local version = "v1.0.9";
-local logname = string.format("%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""));
+local version = "v1.1.0";
+local logname = string.format("HttpSpy/%s-%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""), os.date("%d_%m_%y"));
 
-if not isfile(logname) and options.SaveLogs then 
+if options.SaveLogs then
+    if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN!!
     writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) 
 end;
 
@@ -54,7 +55,7 @@ local function DeepClone(tbl, cloned)
 
     for i,v in Pairs(tbl) do
         if Type(v) == "table" then
-            cloned[i] = DeepClone(v, cloned);
+            cloned[i] = DeepClone(v);
             continue;
         end;
         cloned[i] = v;
@@ -95,7 +96,6 @@ __request = hookfunction(syn.request, newcclosure(function(req)
         end;
 
         local BackupData = {};
-
         for i,v in Pairs(ResponseData) do
             BackupData[i] = v;
         end;
@@ -103,7 +103,6 @@ __request = hookfunction(syn.request, newcclosure(function(req)
         if BackupData.Headers["Content-Type"] and match(BackupData.Headers["Content-Type"], "application/json") and options.AutoDecode then
             local body = BackupData.Body;
             local ok, res = Pcall(game.HttpService.JSONDecode, game.HttpService, body);
-            
             if ok then
                 BackupData.Body = res;
             end;
@@ -115,12 +114,11 @@ __request = hookfunction(syn.request, newcclosure(function(req)
     return cyield();
 end));
 
-
 -- I'll make this better later
 local WsConnect, WsBackup = debug.getupvalue(syn.websocket.connect, 1);
-WsBackup = hookfunction(WsConnect, function(url, ...) 
-    printf("syn.websocket.connect(\"%s\")", url);
-    return WsBackup(url, ...);
+WsBackup = hookfunction(WsConnect, function(...) 
+    printf("syn.websocket.connect(%s)\n", Serializer.FormatArguments(...));
+    return WsBackup(...);
 end);
 
 local RecentCommit = game.HttpService:JSONDecode(game.HttpGet(game, "https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
@@ -133,7 +131,7 @@ for method in Pairs(methods) do
     end));
 end;
 
-pconsole(format("HttpSpy %s (Creator: https://github.com/NotDSF)\nMake sure you are using the loadstring for live updates @ https://github.com/NotDSF/HttpSpy\nChange Logs:\n\t%s\nLogs are automatically being saved to: %s\nType \"cmds\" to view a list of commands\n\n", version, RecentCommit, options.SaveLogs and logname or "(You aren't saving logs, enable SaveLogs if you want to save logs)"));
+pconsole(format("HttpSpy %s (Creator: https://github.com/NotDSF)\nMake sure you are using the loadstring for live updates @ https://github.com/NotDSF/HttpSpy\nChange Logs:\n\t%s\nLogs are automatically being saved to: \27[32m%s\27[0m\nType \"cmds\" to view a list of commands\n\n", version, RecentCommit, options.SaveLogs and logname or "(You aren't saving logs, enable SaveLogs if you want to save logs)"));
 
 if not options.CLICommands then return end;
 
