@@ -9,7 +9,7 @@ local version = "v1.1.0";
 local logname = string.format("HttpSpy/%s-%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""), os.date("%d_%m_%y"));
 
 if options.SaveLogs then
-    if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN!
+    if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN! (cough stan)
     writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) 
 end;
 
