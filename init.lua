@@ -1,15 +1,15 @@
 --[[
-    HttpSpy v1.1.1
+    HttpSpy v1.1.1c
 ]]
 
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
-local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true };
-local version = "v1.1.1";
+local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true, BlockedURLs = {} };
+local version = "v1.1.1c";
 local logname = string.format("HttpSpy/%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"));
 
 if options.SaveLogs then
-    if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN!
+    if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN! (cough stan)
     writefile(logname, string.format("Http Logs from %s\n\n", os.date("%d/%m/%y"))) 
 end;
 
@@ -31,9 +31,9 @@ local cyield = clonef(coroutine.yield);
 local Pcall = clonef(pcall);
 local Pairs = clonef(pairs);
 local Error = clonef(error);
-local blocked = {};
+local blocked = options.BlockedURLs;
 local enabled = true;
-local request = (syn or http).request;
+local reqfunc = (syn or http).request;
 local libtype = syn and "syn" or "http";
 local methods = {
     HttpGet = true,
@@ -77,7 +77,7 @@ __namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     return __namecall(self, ...);
 end));
 
-__request = hookfunction(request, newcclosure(function(req) 
+__request = hookfunction(reqfunc, newcclosure(function(req) 
     if Type(req) ~= "table" then return __request(req); end;
 
     local RequestData = DeepClone(req);
@@ -120,6 +120,10 @@ __request = hookfunction(request, newcclosure(function(req)
     end)();
     return cyield();
 end));
+
+if request then
+    replaceclosure(request, reqfunc);
+end;
 
 if syn then
     local WsConnect, WsBackup = debug.getupvalue(syn.websocket.connect, 1);
