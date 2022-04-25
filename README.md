@@ -21,6 +21,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 - Auto JSON Decoding
 - Easy to use
 - CLI Commands
+- Supported on multiple exploits (including S^X and SW)
 
 ## Preview
 ![](https://i.imgur.com/hnnMiLA.png)
