@@ -9,7 +9,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
     Highlighting = true, -- Highlights the output
     SaveLogs = true, -- Save logs to a text file
     CLICommands = true, -- Allows you to input commands into the console
-    ShowResponse = true -- Shows the request response
+    ShowResponse = true, -- Shows the request response
+    BlockedURLs = {} -- Blocked urls
 });
 ```
 
