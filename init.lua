@@ -2,11 +2,11 @@
     HttpSpy v1.1.0
 ]]
 
-assert(syn, "Unsupported exploit");
+assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
-local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true };
+local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true };
 local version = "v1.1.0";
-local logname = string.format("HttpSpy/%s-%s-log.txt", string.gsub(syn.crypt.base64.encode(syn.crypt.random(5)), "%p", ""), os.date("%d_%m_%y"));
+local logname = string.format("HttpSpy/%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"));
 
 if options.SaveLogs then
     if not isfolder("HttpSpy") then makefolder("HttpSpy") end; -- OmG isfolder("HttpSpy") DeTeCtIoN! (cough stan)
@@ -33,6 +33,8 @@ local Pairs = clonef(pairs);
 local Error = clonef(error);
 local blocked = {};
 local enabled = true;
+local request = (syn or http).request;
+local libtype = syn and "syn" or "http";
 local methods = {
     HttpGet = true,
     HttpGetAsync = true,
@@ -69,13 +71,13 @@ __namecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local method = getnamecallmethod();
 
     if methods[method] then
-        printf("game:%s(%s)\n", method, Serializer.FormatArguments(...));
+        printf("game:%s(%s)\n\n", method, Serializer.FormatArguments(...));
     end;
 
     return __namecall(self, ...);
 end));
 
-__request = hookfunction(syn.request, newcclosure(function(req) 
+__request = hookfunction(request, newcclosure(function(req) 
     if Type(req) ~= "table" then return __request(req); end;
 
     local RequestData = DeepClone(req);
@@ -83,10 +85,15 @@ __request = hookfunction(syn.request, newcclosure(function(req)
         return __request(req);
     end;
 
+    if not options.ShowResponse then
+        printf("%s.request(%s)\n\n", libtype, Serializer.Serialize(RequestData));
+        return __request(req);
+    end;
+
     local t = crunning();
     cwrap(function() 
         if RequestData.Url and blocked[RequestData.Url] then
-            printf("syn.request(%s) -- blocked url\n\n", Serializer.Serialize(RequestData));
+            printf("%s.request(%s) -- blocked url\n\n", libtype, Serializer.Serialize(RequestData));
             return cresume(t, {});
         end;
 
@@ -108,25 +115,26 @@ __request = hookfunction(syn.request, newcclosure(function(req)
             end;
         end;
 
-        printf("syn.request(%s)\n\nResponse Data: %s\n", Serializer.Serialize(RequestData), Serializer.Serialize(BackupData));
+        printf("%s.request(%s)\n\nResponse Data: %s\n\n", libtype, Serializer.Serialize(RequestData), Serializer.Serialize(BackupData));
         cresume(t, ResponseData);
     end)();
     return cyield();
 end));
 
--- I'll make this better later
-local WsConnect, WsBackup = debug.getupvalue(syn.websocket.connect, 1);
-WsBackup = hookfunction(WsConnect, function(...) 
-    printf("syn.websocket.connect(%s)\n", Serializer.FormatArguments(...));
-    return WsBackup(...);
-end);
+if syn then
+    local WsConnect, WsBackup = debug.getupvalue(syn.websocket.connect, 1);
+    WsBackup = hookfunction(WsConnect, function(...) 
+        printf("syn.websocket.connect(%s)\n\n", Serializer.FormatArguments(...));
+        return WsBackup(...);
+    end);
+end;
 
 local RecentCommit = game.HttpService:JSONDecode(game.HttpGet(game, "https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
 
 for method in Pairs(methods) do
     local b;
     b = hookfunction(game[method], newcclosure(function(self, ...) 
-        printf("game.%s(game, %s)\n", method, Serializer.FormatArguments(...));
+        printf("game.%s(game, %s)\n\n", method, Serializer.FormatArguments(...));
         return b(self, ...);
     end));
 end;
@@ -176,7 +184,7 @@ while true do
 
     local CommandInfo = Commands[Command];
     if not CommandInfo then
-        pconsole(format("'%s' is not a command, type \"cmds\" to view the commands\n\n", Command));
+        pconsole(format("'%s' is not a command, type 'cmds' to view the commands\n\n", Command));
         continue;
     end;
 
