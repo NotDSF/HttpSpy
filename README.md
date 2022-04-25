@@ -8,7 +8,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
     AutoDecode = true, -- Automatically decodes JSON
     Highlighting = true, -- Highlights the output
     SaveLogs = true, -- Save logs to a text file
-    CLICommands = true -- Allows you to input commands into the console
+    CLICommands = true, -- Allows you to input commands into the console
+    ShowResponse = true -- Shows the request response
 });
 ```
 
