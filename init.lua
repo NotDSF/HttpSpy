@@ -1,11 +1,11 @@
 --[[
-    HttpSpy v1.1.0
+    HttpSpy v1.1.1
 ]]
 
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
 local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true };
-local version = "v1.1.0";
+local version = "v1.1.1";
 local logname = string.format("HttpSpy/%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"));
 
 if options.SaveLogs then
