@@ -1,11 +1,11 @@
 --[[
-    HttpSpy v1.1.1c
+    HttpSpy v1.1.2
 ]]
 
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
 local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true, BlockedURLs = {} };
-local version = "v1.1.1c";
+local version = "v1.1.2";
 local logname = string.format("HttpSpy/%d-%s-log.txt", game.PlaceId, os.date("%d_%m_%y"));
 
 if options.SaveLogs then
@@ -16,13 +16,10 @@ end;
 local Serializer = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/leopard/main/rbx/leopard-syn.lua"))();
 local clonef = clonefunction;
 local pconsole = clonef(rconsoleprint);
-local pinput = clonef(rconsoleinput);
 local format = clonef(string.format);
 local gsub = clonef(string.gsub);
 local match = clonef(string.match);
-local gmatch = clonef(string.gmatch);
 local append = clonef(appendfile);
-local Unpack = clonef(unpack);
 local Type = clonef(type);
 local crunning = clonef(coroutine.running);
 local cwrap = clonef(coroutine.wrap);
@@ -36,11 +33,11 @@ local enabled = true;
 local reqfunc = (syn or http).request;
 local libtype = syn and "syn" or "http";
 local methods = {
-    HttpGet = true,
-    HttpGetAsync = true,
+    HttpGet = not syn,
+    HttpGetAsync = not syn,
     GetObjects = true,
-    HttpPost = true,
-    HttpPostAsync = true
+    HttpPost = not syn,
+    HttpPostAsync = not syn
 }
 
 Serializer.UpdateConfig({ highlighting = options.Highlighting });
@@ -50,6 +47,14 @@ local function printf(...)
         append(logname, gsub(format(...), "%\27%[%d+m", ""));
     end;
     return pconsole(format(...));
+end;
+
+local function ConstantScan(constant)
+    for i,v in pairs(getgc(true)) do
+        if type(v) == "function" and islclosure(v) and getfenv(v).script == getfenv(saveinstance).script and table.find(debug.getconstants(v), constant) then
+            return v;
+        end;
+    end;
 end;
 
 local function DeepClone(tbl, cloned)
@@ -135,67 +140,29 @@ end;
 
 local RecentCommit = game.HttpService:JSONDecode(game.HttpGet(game, "https://api.github.com/repos/NotDSF/HttpSpy/commits?per_page=1&path=init.lua"))[1].commit.message;
 
-for method in Pairs(methods) do
-    local b;
-    b = hookfunction(game[method], newcclosure(function(self, ...) 
-        printf("game.%s(game, %s)\n\n", method, Serializer.FormatArguments(...));
-        return b(self, ...);
-    end));
+-- I already know this will make some people mad :troll:
+if syn then
+    local HttpGet;
+    HttpGet = hookfunction(getupvalue(ConstantScan("ZeZLm2hpvGJrD6OP8A3aEszPNEw8OxGb"), 2), function(self, ...) 
+        printf("game.HttpGet(game, %s)\n\n", Serializer.FormatArguments(...));
+        return HttpGet(self, ...);
+    end);
+
+    local HttpPost;
+    HttpPost = hookfunction(getupvalue(ConstantScan("gpGXBVpEoOOktZWoYECgAY31o0BlhOue"), 2), function(self, ...) 
+        printf("game.HttpPost(game, %s)\n\n", Serializer.FormatArguments(...));
+        return HttpPost(self, ...);
+    end);
+end
+
+for method, enabled in Pairs(methods) do
+    if enabled then
+        local b;
+        b = hookfunction(game[method], newcclosure(function(self, ...) 
+            printf("game.%s(game, %s)\n\n", method, Serializer.FormatArguments(...));
+            return b(self, ...);
+        end));
+    end;
 end;
 
 pconsole(format("HttpSpy %s (Creator: https://github.com/NotDSF)\nMake sure you are using the loadstring for live updates @ https://github.com/NotDSF/HttpSpy\nChange Logs:\n\t%s\nLogs are automatically being saved to: \27[32m%s\27[0m\nType \"cmds\" to view a list of commands\n\n", version, RecentCommit, options.SaveLogs and logname or "(You aren't saving logs, enable SaveLogs if you want to save logs)"));
-
-if not options.CLICommands then return end;
-
-local Commands = {};
-local function RegisterCommand(name, argsr, func) 
-    Commands[name] = {
-        ArgsRequired = argsr,
-        Command = func
-    }
-end;
-
-RegisterCommand("cmds", 0, function() pconsole("List of commands:\n\tblock[=url]: will block any request with the specified url (the request will still be shown on the spy)\n\tunblock[=url]: will unblock the specified url\n\tenable: will enable the spy\n\tdisable: will disable the spy\n\tcls: will clear the console\n\n"); end);
-RegisterCommand("enable", 0, function() enabled = true; pconsole("The spy is now enabled!\n\n"); end);
-RegisterCommand("disable", 0, function() enabled = false; pconsole("The spy is now disabled!\n\n"); end);
-RegisterCommand("cls", 0, rconsoleclear);
-
-RegisterCommand("block", 1, function(url) 
-    blocked[url] = true;
-    pconsole(format("Blocked url: '%s'\n\n", url));
-end);
-
-RegisterCommand("unblock", 1, function(url) 
-    if not blocked[url] then
-        pconsole(format("This url isn't blocked\n\n"));
-    end;
-    blocked[url] = false;
-    pconsole(format("Unblocked url: '%s'\n\n", url));
-end);
-
-while true do 
-    local Input, Args, Command = pinput(), {};
-
-    for i in gmatch(Input, "[^%s]+") do
-        if not Command then 
-            Command = i;
-            continue;
-        end;
-        Args[#Args+1] = i;
-    end;
-
-    if not Command then continue end;
-
-    local CommandInfo = Commands[Command];
-    if not CommandInfo then
-        pconsole(format("'%s' is not a command, type 'cmds' to view the commands\n\n", Command));
-        continue;
-    end;
-
-    if CommandInfo.ArgsRequired > #Args then
-        pconsole(format("'%s' requires %d arguments but you provided %d\n\n", Command, CommandInfo.ArgsRequired, #Args));
-        continue;
-    end;
-
-    CommandInfo.Command(Unpack(Args));
-end;
