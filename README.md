@@ -27,34 +27,27 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/i
 ## Preview
 ![](https://i.imgur.com/hnnMiLA.png)
 
-## Command List
-
-### Block URL
-Blocks any request with the specified url, however the request will still be shown on the spy.
-```
-block[=url]
-```
-
-### Unblock URL
-Will unblock the specified url.
-```
-unblock[=url]
+## API
+```lua
+HttpSpy:HookSynRequest(<string url>, <function hook>); -- hook is called with <<table> Response>
+HttpSpy:BlockUrl(<string url>);
+HttpSpy:WhitelistUrl(<string url>);
 ```
 
-### Clear Console
-Will clear the synapse console.
-```
-cls
-```
+### Example
+```lua
+local HttpSpy = loadstring(game:HttpGet("https://raw.githubusercontent.com/NotDSF/HttpSpy/main/init.lua"))({
+    AutoDecode = true, -- Automatically decodes JSON
+    Highlighting = true, -- Highlights the output
+    SaveLogs = true, -- Save logs to a text file
+    CLICommands = true, -- Allows you to input commands into the console
+    ShowResponse = true, -- Shows the request response
+    BlockedURLs = {} -- Blocked urls
+});
 
-### Enable Spy
-Will enable the spy.
-```
-enable
-```
+HttpSpy:HookSynRequest("https://httpbin.org/get", function(response) 
+    response.Body = "hi";
+    return response;
+end);
 
-### Disable Spy
-Will disable the spy.
-```
-disable
-```
+print(syn.request({ Url = "https://httpbin.org/get" }).Body);
