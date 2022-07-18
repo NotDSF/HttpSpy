@@ -32,6 +32,7 @@ local blocked = options.BlockedURLs;
 local enabled = true;
 local reqfunc = (syn or http).request;
 local libtype = syn and "syn" or "http";
+local hooked = {};
 local methods = {
     HttpGet = not syn,
     HttpGetAsync = not syn,
@@ -121,7 +122,7 @@ __request = hookfunction(reqfunc, newcclosure(function(req)
         end;
 
         printf("%s.request(%s)\n\nResponse Data: %s\n\n", libtype, Serializer.Serialize(RequestData), Serializer.Serialize(BackupData));
-        cresume(t, ResponseData);
+        cresume(t, hooked[RequestData.Url] and hooked[RequestData.Url](ResponseData) or ResponseData);
     end)();
     return cyield();
 end));
@@ -165,4 +166,20 @@ for method, enabled in Pairs(methods) do
     end;
 end;
 
-pconsole(format("HttpSpy %s (Creator: https://github.com/NotDSF)\nMake sure you are using the loadstring for live updates @ https://github.com/NotDSF/HttpSpy\nChange Logs:\n\t%s\nLogs are automatically being saved to: \27[32m%s\27[0m\nType \"cmds\" to view a list of commands\n\n", version, RecentCommit, options.SaveLogs and logname or "(You aren't saving logs, enable SaveLogs if you want to save logs)"));
+pconsole(format("HttpSpy %s (Creator: https://github.com/NotDSF)\nMake sure you are using the loadstring for live updates @ https://github.com/NotDSF/HttpSpy\nChange Logs:\n\t%s\nLogs are automatically being saved to: \27[32m%s\27[0m\n\n", version, RecentCommit, options.SaveLogs and logname or "(You aren't saving logs, enable SaveLogs if you want to save logs)"));
+
+local API = {};
+
+function API:HookSynRequest(url, hook) 
+    hooked[url] = hook;
+end;
+
+function API:BlockUrl(url) 
+    blocked[url] = true;
+end;
+
+function API:WhitelistUrl(url) 
+    blocked[url] = false;
+end;
+
+return API;
