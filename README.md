@@ -1,6 +1,9 @@
 # HttpSpy
 A powerful and highly efficient network debugging tool for Roblox (and exploits)
 
+## Alert
+This project will not be updated until the release of Synapse V3.
+
 ## Usage
 > Be sure to execute the HttpSpy before the target script!
 ```lua
