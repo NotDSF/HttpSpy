@@ -89,11 +89,13 @@ end));
 
 __request = hookfunction(reqfunc, newcclosure(function(req) 
     if Type(req) ~= "table" then return __request(req); end;
-
+    
     local RequestData = DeepClone(req);
     if not enabled then
         return __request(req);
     end;
+
+    if Type(RequestData.Url) ~= "string" then return __request(req) end;
 
     if not options.ShowResponse then
         printf("%s.request(%s)\n\n", libtype, Serializer.Serialize(RequestData));
