@@ -2,7 +2,7 @@
 A powerful and highly efficient network debugging tool for Roblox (and exploits)
 
 ## Alert
-This project will not be updated until the release of Synapse V3.
+This project is no longer maintained (and won't be until I finish some other stuff), if you'd like to make a pull request feel free to do so and I might accept it
 
 ## Usage
 > Be sure to execute the HttpSpy before the target script!
