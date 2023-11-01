@@ -2,6 +2,10 @@
     HttpSpy v1.1.3
 ]]
 
+do
+    return rconsoleprint("Join our Discord for more information: https://discord.gg/ykW24mazKb")
+end
+
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
 local options = ({...})[1] or { AutoDecode = true, Highlighting = true, SaveLogs = true, CLICommands = true, ShowResponse = true, BlockedURLs = {}, API = true };
