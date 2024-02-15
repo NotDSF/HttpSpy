@@ -2,9 +2,9 @@
     HttpSpy v1.1.3
 ]]
 
-do
-    return rconsoleprint("Join our Discord for more information: https://discord.gg/ykW24mazKb")
-end
+if rconsoleprint then
+    rconsoleprint("Join Discord frfr https://discord.gg/JwNQ6HZGFw")
+end;
 
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
 
