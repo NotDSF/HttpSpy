@@ -3,7 +3,7 @@
 ]]
 
 if rconsoleprint then
-    rconsoleprint("Join Discord frfr https://discord.gg/JwNQ6HZGFw")
+    rconsoleprint("https://eleutheri.com - #1 Whitelist Service\n\n")
 end;
 
 assert(syn or http, "Unsupport exploit (should support syn.request or http.request)");
